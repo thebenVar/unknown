@@ -1,14 +1,17 @@
 "use client";
 
-import { Search, Compass, Menu, Loader2, MessageSquare, Send, Bot, User, Sparkles, X } from "lucide-react";
+import { Search, Compass, Menu, Loader2, MessageSquare, Send, Bot, User, Sparkles, X, Settings } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useStore } from "../store";
 import { storyNodes } from "../data/nodes";
 import { motion, AnimatePresence } from "framer-motion";
+import SettingsModal from "./SettingsModal";
+import { getAPIKey } from "../lib/apiKeyStorage";
 
 export default function UIOverlay() {
     const [query, setQuery] = useState("");
     const [isChatOpen, setIsChatOpen] = useState(true);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const { setTargetNode, isGenerating, setIsGenerating, chatMessages, addChatMessage, targetNode } = useStore();
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -42,12 +45,17 @@ export default function UIOverlay() {
         if (!isChatOpen) setIsChatOpen(true);
 
         try {
+            // Get API key from storage if available
+            const apiKeyData = await getAPIKey();
+
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     message: userQuery,
-                    contextNode: targetNode
+                    contextNode: targetNode,
+                    apiKey: apiKeyData?.apiKey,
+                    provider: apiKeyData?.provider,
                 }),
             });
 
@@ -72,10 +80,16 @@ export default function UIOverlay() {
                         <p className="text-cyan-400 text-xs tracking-widest uppercase opacity-80 font-mono">System Online</p>
                     </div>
                 </div>
-                <button className="p-3 bg-black/40 backdrop-blur-md border border-white/10 rounded-full hover:bg-white/10 transition group">
-                    <Menu className="text-white w-6 h-6 group-hover:text-cyan-400 transition" />
+                <button 
+                    onClick={() => setIsSettingsOpen(true)}
+                    className="p-3 bg-black/40 backdrop-blur-md border border-white/10 rounded-full hover:bg-white/10 transition group"
+                >
+                    <Settings className="text-white w-6 h-6 group-hover:text-cyan-400 transition" />
                 </button>
             </header>
+
+            {/* Settings Modal */}
+            <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
 
             {/* Main Content Layer */}
             <div className="flex-1 flex relative pointer-events-none">
