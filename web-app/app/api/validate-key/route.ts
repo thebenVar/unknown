@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
         }
       } else if (provider === 'gemini') {
         // Test Gemini API key with a minimal request
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`);
         
         isValid = response.ok;
         if (!isValid) {

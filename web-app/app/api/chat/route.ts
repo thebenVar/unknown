@@ -21,10 +21,10 @@ export async function POST(req: Request) {
                         messages: [
                             {
                                 role: 'system',
-                                content: `You are an enthusiastic AI guide for Skhoolar, an interactive 3D learning experience. Your role is to make learning fun and engaging. ${
+                                content: `You are an enthusiastic AI guide for Skhoolar. Keep responses brief (2-3 sentences max). Be engaging and conversational. ${
                                     contextNode
-                                        ? `The user is currently exploring: ${contextNode.title} from ${contextNode.category} (${contextNode.era}).`
-                                        : 'Help users discover fascinating topics in science, history, and linguistics.'
+                                        ? `Context: ${contextNode.title} (${contextNode.category}, ${contextNode.era}).`
+                                        : 'Help users discover topics in science, history, and linguistics.'
                                 }`
                             },
                             {
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
                                 content: message
                             }
                         ],
-                        max_tokens: 300,
+                        max_tokens: 150,
                         temperature: 0.7,
                     }),
                 });
@@ -45,13 +45,13 @@ export async function POST(req: Request) {
                     llmReply = 'Sorry, I encountered an error communicating with the AI service.';
                 }
             } else if (provider === 'gemini') {
-                const systemPrompt = `You are an enthusiastic AI guide for Skhoolar, an interactive 3D learning experience. Your role is to make learning fun and engaging. ${
+                const systemPrompt = `You are an enthusiastic AI guide for Skhoolar. Keep responses brief (2-3 sentences max). Be engaging and conversational. ${
                     contextNode
-                        ? `The user is currently exploring: ${contextNode.title} from ${contextNode.category} (${contextNode.era}).`
-                        : 'Help users discover fascinating topics in science, history, and linguistics.'
+                        ? `Context: ${contextNode.title} (${contextNode.category}, ${contextNode.era}).`
+                        : 'Help users discover topics in science, history, and linguistics.'
                 }`;
 
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
                             }]
                         }],
                         generationConfig: {
-                            maxOutputTokens: 300,
+                            maxOutputTokens: 150,
                             temperature: 0.7,
                         }
                     }),

@@ -113,6 +113,46 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     setValidationMessage('');
   };
 
+  const handleTestModels = async () => {
+    if (!apiKey.trim()) {
+      setValidationStatus('error');
+      setValidationMessage('Please enter an API key first');
+      return;
+    }
+
+    console.log('Testing API key and listing models...');
+    setIsValidating(true);
+    setValidationStatus('idle');
+
+    try {
+      const response = await fetch('/api/test-models', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey, provider }),
+      });
+
+      const result = await response.json();
+      console.log('Available models:', result);
+
+      if (result.success && result.models.length > 0) {
+        setValidationStatus('success');
+        const modelList = result.models.slice(0, 5).map((m: { id?: string; name?: string }) => 
+          provider === 'gemini' ? m.name : m.id
+        ).join(', ');
+        setValidationMessage(`✅ Found ${result.count} models! First 5: ${modelList}... (Check console for full list)`);
+      } else {
+        setValidationStatus('error');
+        setValidationMessage(result.error || 'No models found');
+      }
+    } catch (error) {
+      console.error('Test error:', error);
+      setValidationStatus('error');
+      setValidationMessage(`Failed to test API key: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -134,7 +174,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl z-101 overflow-hidden"
           >
             {/* Header */}
-            <div className="p-6 border-b border-white/10 bg-gradient-to-b from-cyan-500/10 to-transparent">
+            <div className="p-6 border-b border-white/10 bg-linear-to-b from-cyan-500/10 to-transparent">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center border border-cyan-500/50">
@@ -244,9 +284,9 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     }`}
                   >
                     {validationStatus === 'success' ? (
-                      <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
+                      <Check className="w-4 h-4 text-green-400 shrink-0" />
                     ) : (
-                      <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                      <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
                     )}
                     <p
                       className={`text-sm ${
@@ -277,6 +317,20 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   Remove Key
                 </button>
               )}
+              <button
+                onClick={handleTestModels}
+                disabled={isValidating || !apiKey.trim()}
+                className="flex-1 py-3 px-4 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50 text-purple-400 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isValidating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Testing...
+                  </>
+                ) : (
+                  'Test & List Models'
+                )}
+              </button>
               <button
                 onClick={handleValidateAndSave}
                 disabled={isValidating || !apiKey.trim()}
