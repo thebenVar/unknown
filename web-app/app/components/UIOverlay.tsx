@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { useStore } from "../store";
 import { storyNodes } from "../data/nodes";
 import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
 import SettingsModal from "./SettingsModal";
 import { getAPIKey } from "../lib/apiKeyStorage";
 
@@ -12,8 +13,14 @@ export default function UIOverlay() {
     const [query, setQuery] = useState("");
     const [isChatOpen, setIsChatOpen] = useState(true);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
     const { setTargetNode, isGenerating, setIsGenerating, chatMessages, addChatMessage, targetNode } = useStore();
     const chatContainerRef = useRef<HTMLDivElement>(null);
+
+    // Check if component is mounted (client-side only)
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     // Auto-scroll chat
     useEffect(() => {
@@ -70,26 +77,24 @@ export default function UIOverlay() {
     };
 
     return (
-        <div className="absolute inset-0 pointer-events-none flex flex-col justify-between z-40 overflow-hidden">
-            {/* Top HUD */}
-            <header className="flex justify-between items-start p-6 pointer-events-auto">
-                <div>
-                    <h1 className="text-white font-bold text-2xl tracking-[0.2em] drop-shadow-lg font-mono">OBSERVATORY</h1>
-                    <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                        <p className="text-cyan-400 text-xs tracking-widest uppercase opacity-80 font-mono">System Online</p>
+        <>
+            <div className="absolute inset-0 pointer-events-none flex flex-col justify-between z-40 overflow-hidden">
+                {/* Top HUD */}
+                <header className="flex justify-between items-start p-6 pointer-events-auto">
+                    <div>
+                        <h1 className="text-white font-bold text-2xl tracking-[0.2em] drop-shadow-lg font-mono">OBSERVATORY</h1>
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                            <p className="text-cyan-400 text-xs tracking-widest uppercase opacity-80 font-mono">System Online</p>
+                        </div>
                     </div>
-                </div>
-                <button 
-                    onClick={() => setIsSettingsOpen(true)}
-                    className="p-3 bg-black/40 backdrop-blur-md border border-white/10 rounded-full hover:bg-white/10 transition group"
-                >
-                    <Settings className="text-white w-6 h-6 group-hover:text-cyan-400 transition" />
-                </button>
-            </header>
-
-            {/* Settings Modal */}
-            <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+                    <button 
+                        onClick={() => setIsSettingsOpen(true)}
+                        className="p-3 bg-black/40 backdrop-blur-md border border-white/10 rounded-full hover:bg-white/10 transition group"
+                    >
+                        <Settings className="text-white w-6 h-6 group-hover:text-cyan-400 transition" />
+                    </button>
+                </header>
 
             {/* Main Content Layer */}
             <div className="flex-1 flex relative pointer-events-none">
@@ -227,5 +232,12 @@ export default function UIOverlay() {
                 {/* RIGHT: Story Card (Handled by StoryCard component) */}
             </div>
         </div>
+
+        {/* Settings Modal - Rendered using Portal to bypass pointer-events-none */}
+        {isMounted && createPortal(
+            <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />,
+            document.body
+        )}
+        </>
     );
 }

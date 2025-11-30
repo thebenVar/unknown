@@ -80,7 +80,7 @@ localStorage (encrypted) → Retrieve encryption key from IndexedDB
 ## Supported Providers
 
 - **OpenAI** (GPT models)
-- **Anthropic** (Claude models)
+- **Gemini** (Google Gemini models)
 - **Custom** (any OpenAI-compatible API)
 
 ## User Privacy

@@ -11,7 +11,7 @@ interface SettingsModalProps {
 }
 
 export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
-  const [provider, setProvider] = useState<'openai' | 'anthropic' | 'custom'>('openai');
+  const [provider, setProvider] = useState<'openai' | 'gemini' | 'custom'>('openai');
   const [apiKey, setApiKey] = useState('');
   const [customEndpoint, setCustomEndpoint] = useState('');
   const [model, setModel] = useState('');
@@ -162,7 +162,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   LLM Provider
                 </label>
                 <div className="grid grid-cols-3 gap-2">
-                  {(['openai', 'anthropic', 'custom'] as const).map((p) => (
+                  {(['openai', 'gemini', 'custom'] as const).map((p) => (
                     <button
                       key={p}
                       onClick={() => setProvider(p)}

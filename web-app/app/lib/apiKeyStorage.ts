@@ -145,7 +145,7 @@ async function decrypt(encryptedData: string, key: CryptoKey): Promise<string> {
 }
 
 export interface APIKeyData {
-  provider: 'openai' | 'anthropic' | 'custom';
+  provider: 'openai' | 'gemini' | 'custom';
   apiKey: string;
   endpoint?: string; // For custom providers
   model?: string;

@@ -14,7 +14,7 @@ Skhoolar is an immersive 3D web application that transforms learning into an exc
 
 ### 🤖 AI-Powered Guide
 - Context-aware AI assistant that answers questions
-- Configurable LLM providers (OpenAI, Anthropic, or custom)
+- Configurable LLM providers (OpenAI, Gemini, or custom)
 - **Secure API key storage** using AES-256-GCM encryption
 - Mock responses when no API key is configured
 
@@ -72,7 +72,7 @@ npm run dev
 For enhanced AI responses, you can add your own API key:
 
 1. Click the **Settings icon** (⚙️) in the top-right corner
-2. Select your LLM provider (OpenAI or Anthropic)
+2. Select your LLM provider (OpenAI or Gemini)
 3. Enter your API key
 4. Click "Validate & Save"
 

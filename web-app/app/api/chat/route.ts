@@ -44,36 +44,36 @@ export async function POST(req: Request) {
                     console.error('OpenAI API error:', await response.text());
                     llmReply = 'Sorry, I encountered an error communicating with the AI service.';
                 }
-            } else if (provider === 'anthropic') {
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
+            } else if (provider === 'gemini') {
+                const systemPrompt = `You are an enthusiastic AI guide for Skhoolar, an interactive 3D learning experience. Your role is to make learning fun and engaging. ${
+                    contextNode
+                        ? `The user is currently exploring: ${contextNode.title} from ${contextNode.category} (${contextNode.era}).`
+                        : 'Help users discover fascinating topics in science, history, and linguistics.'
+                }`;
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'x-api-key': apiKey,
-                        'anthropic-version': '2023-06-01',
                     },
                     body: JSON.stringify({
-                        model: 'claude-3-haiku-20240307',
-                        max_tokens: 300,
-                        messages: [
-                            {
-                                role: 'user',
-                                content: `${
-                                    contextNode
-                                        ? `I'm exploring ${contextNode.title} from ${contextNode.category} (${contextNode.era}). `
-                                        : ''
-                                }${message}`
-                            }
-                        ],
-                        system: 'You are an enthusiastic AI guide for Skhoolar, an interactive 3D learning experience. Your role is to make learning fun and engaging.'
+                        contents: [{
+                            parts: [{
+                                text: `${systemPrompt}\n\nUser: ${message}`
+                            }]
+                        }],
+                        generationConfig: {
+                            maxOutputTokens: 300,
+                            temperature: 0.7,
+                        }
                     }),
                 });
 
                 if (response.ok) {
                     const data = await response.json();
-                    llmReply = data.content[0].text;
+                    llmReply = data.candidates[0].content.parts[0].text;
                 } else {
-                    console.error('Anthropic API error:', await response.text());
+                    console.error('Gemini API error:', await response.text());
                     llmReply = 'Sorry, I encountered an error communicating with the AI service.';
                 }
             }

@@ -33,21 +33,9 @@ export async function POST(req: NextRequest) {
           const error = await response.json();
           errorMessage = error.error?.message || 'Invalid API key';
         }
-      } else if (provider === 'anthropic') {
-        // Test Anthropic API key
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01',
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'claude-3-haiku-20240307',
-            max_tokens: 1,
-            messages: [{ role: 'user', content: 'test' }],
-          }),
-        });
+      } else if (provider === 'gemini') {
+        // Test Gemini API key with a minimal request
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
         
         isValid = response.ok;
         if (!isValid) {
