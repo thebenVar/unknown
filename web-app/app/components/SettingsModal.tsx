@@ -53,21 +53,26 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       return;
     }
 
+    console.log('Starting validation for provider:', provider);
     setIsValidating(true);
     setValidationStatus('idle');
 
     try {
       // Validate the API key
+      console.log('Sending validation request...');
       const response = await fetch('/api/validate-key', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ apiKey, provider }),
       });
 
+      console.log('Validation response status:', response.status);
       const result = await response.json();
+      console.log('Validation result:', result);
 
       if (result.valid) {
         // Store the key securely
+        console.log('Storing API key...');
         const keyData: APIKeyData = {
           provider,
           apiKey,
@@ -87,12 +92,12 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         }, 2000);
       } else {
         setValidationStatus('error');
-        setValidationMessage(result.message || 'Invalid API key');
+        setValidationMessage(result.message || result.error || 'Invalid API key');
       }
     } catch (error) {
       console.error('Validation error:', error);
       setValidationStatus('error');
-      setValidationMessage('Failed to validate API key. Please try again.');
+      setValidationMessage(`Failed to validate API key: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsValidating(false);
     }
